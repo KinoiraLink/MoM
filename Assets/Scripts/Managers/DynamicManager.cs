@@ -6,11 +6,9 @@ namespace Managers
     public class DynamicManager : Manager
     {
         private ObjectPool<Transform> _players;
-        public override void Init()
+        protected override void Init()
         {
-            base.Init();
-            Debug.Log("TestManager 已初始化");
-
+            Debug.Log("DynamicManager 已初始化");
         }
 
         public DynamicManager GetString(out string str)

@@ -11,10 +11,10 @@ public class TestScript : MonoBehaviour
 
     private void Start()
     {
-        float speed = GameManager.Instance.LoadAssetManager<StaticDataManager,PlayerData>(playerData).GetPlayerData().speed;
-        GameManager.Instance.GetManager<DynamicManager>().GetString(out string str);
-        int enduranceDuration = GameManager.Instance.LoadAssetManager<StaticDataManager,PlayerData>(playerData).GetPlayerData().enduranceDuration;
-        Debug.Log(speed);
+        GameManager.Proxy.LoadManager<StaticDataManager,PlayerData>(playerData);
+        GameManager.Proxy.LoadManager<DynamicManager>();
+        GameManager.Proxy.GetManager<DynamicManager>().GetString(out string str);
+        int enduranceDuration = GameManager.Proxy.GetManager<StaticDataManager>().GetPlayerData().enduranceDuration;
         Debug.Log(str);
         Debug.Log(enduranceDuration);
     }

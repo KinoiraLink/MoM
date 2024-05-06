@@ -14,7 +14,7 @@ public class GameManager : MonoBehaviour
     //动态数据由各个管理器自己管理，配合对象池管理，比如动态的创建的 Character，
     
     //单例，唯一静态访问
-    public static GameManager Instance { get; private set; }
+    public static GameManager Proxy { get; private set; }
     
     //管理器管理
     private readonly Dictionary<Type, Manager> _managers = new(); 
@@ -23,13 +23,13 @@ public class GameManager : MonoBehaviour
     {
         
         //保证唯一
-        if (Instance != null)
+        if (Proxy != null)
         {
             Destroy(this.gameObject);
         }
         else
         {
-            Instance = this;
+            Proxy = this;
         }
         DontDestroyOnLoad(this.gameObject);
         RegisterAllManagers();
@@ -40,8 +40,8 @@ public class GameManager : MonoBehaviour
     /// </summary>
     private void RegisterAllManagers()
     {
-        Register<DynamicManager>();
-        Register<StaticDataManager, PlayerData>(playerData);
+        //Register<DynamicManager>();
+        //Register<StaticDataManager, PlayerData>(playerData);
     }
 
     /// <summary>
@@ -49,11 +49,11 @@ public class GameManager : MonoBehaviour
     /// </summary>
     /// <typeparam name="T">管理器类型</typeparam>
     /// <returns>管理器对象</returns>
-    public T GetManager<T>() where T : Manager, new()
+    public T GetManager<T>() where T : Manager
     {
         //便于延迟加载或者动态加载
         if (!_managers.ContainsKey(typeof(T)))
-            Register<T>();
+            throw new NullReferenceException();
         /*
         {
             T t = Activator.CreateInstance<T>();
@@ -73,14 +73,22 @@ public class GameManager : MonoBehaviour
     /// <typeparam name="T">管理器类型</typeparam>
     /// <typeparam name="TH">数据类型</typeparam>
     /// <returns>管理器</returns>
-    public T LoadAssetManager<T,TH>(TH gameAsset) 
-        where T : Manager<TH>, new()
+    public void LoadManager<T,TH>(TH gameAsset) 
+        where T : Manager<TH>
         where TH : ScriptableObject
     {
         //便于延迟加载或者动态加载
         if (!_managers.ContainsKey(typeof(T)))
             Register<T,TH>(gameAsset) ;
-        return (T)_managers[typeof(T)];
+        Debug.LogWarning($"{typeof(T)} Has Register");
+    }
+    
+    public void LoadManager<T>() 
+        where T : Manager,new() {
+        //便于延迟加载或者动态加载
+        if (!_managers.ContainsKey(typeof(T)))
+            Register<T>();
+        Debug.LogWarning($"{typeof(T)} Has Register");
     }
     
     
@@ -91,11 +99,10 @@ public class GameManager : MonoBehaviour
     /// <typeparam name="T">管理器类型</typeparam>
     /// <typeparam name="TH">数据类型</typeparam>
     private void Register<T,TH>(TH gameAsset) 
-        where T : Manager<TH>,new()
+        where T : Manager<TH>
         where TH : ScriptableObject
     {
-        T t = new T();
-        t.Init(gameAsset);
+        var t = (T)Activator.CreateInstance(typeof(T),new object[]{gameAsset});
         _managers.Add(typeof(T),t);
     }
     /// <summary>
@@ -106,7 +113,6 @@ public class GameManager : MonoBehaviour
         where T : Manager,new()
     {
         T t = new T();
-        t.Init();
         _managers.Add(typeof(T), t);
     }
 }

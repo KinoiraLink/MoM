@@ -5,15 +5,23 @@ namespace Managers
 {
     public class StaticDataManager : Manager<PlayerData>
     {
-        public override void Init()
+        protected override void Init()
         {
-            base.Init();
-            Debug.Log("AssetTestManager 已初始化,PlayerData 已加载");
+            Debug.Log("StaticDataManager 已初始化");
+
         }
 
         public PlayerData GetPlayerData()
         {
             return gameAsset;
         }
+
+        public StaticDataManager(PlayerData gameAsset) : base(gameAsset)
+        {
+            
+        }
+        
+        
+        
     }
 }
